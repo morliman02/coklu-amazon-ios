@@ -5,6 +5,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: macos-15
@@ -36,3 +39,12 @@ jobs:
         with:
           name: CokluAmazon-ipa
           path: CokluAmazon.ipa
+
+      - name: Sürüm sayfasına koy
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete son --yes --cleanup-tag || true
+          gh release create son CokluAmazon.ipa \
+            --title "Çoklu Amazon (son derleme)" \
+            --notes "Sideloadly ile iPhone'a yükle. Derleme: ${{ github.sha }}"
