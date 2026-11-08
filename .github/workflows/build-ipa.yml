@@ -1,0 +1,38 @@
+name: IPA derle
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Xcode sürümü
+        run: xcodebuild -version
+
+      - name: İmzasız derle
+        run: |
+          xcodebuild \
+            -project CokluAmazon.xcodeproj \
+            -target CokluAmazon \
+            -configuration Release \
+            -sdk iphoneos \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build
+
+      - name: IPA paketle
+        run: |
+          mkdir Payload
+          cp -R build/Release-iphoneos/CokluAmazon.app Payload/
+          zip -qry CokluAmazon.ipa Payload
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CokluAmazon-ipa
+          path: CokluAmazon.ipa
